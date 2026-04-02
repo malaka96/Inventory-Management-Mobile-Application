@@ -1,17 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/widgets/custom_filter_chip.dart';
 import 'package:inventory_management_mobile_app/widgets/custom_search_field.dart';
 import 'package:inventory_management_mobile_app/widgets/empty_product_view.dart';
 import 'package:inventory_management_mobile_app/widgets/product_add_button.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  final TextEditingController productNameController = TextEditingController();
+
+  final TextEditingController initialQuantityController =
+      TextEditingController();
+
+  final TextEditingController minimumStockController = TextEditingController();
+
+  String? selectedCategory;
+
+  List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
+
+  void onCategoryChanged(String? value) {
+    setState(() {
+      selectedCategory = value ?? "";
+    });
+  }
+
+  void onCancel() {}
+
+  void onAddProduct() {}
+
+  void showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 1.25,
+          child: AddProductBottomSheetBody(
+            productNameController: productNameController,
+            initialQuantityController: initialQuantityController,
+            minimumStockController: minimumStockController,
+            selectedCategory: selectedCategory,
+            categories: categories,
+            onCategoryChanged: onCategoryChanged,
+            onCancel: onCancel,
+            onAddProduct: onAddProduct,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
-      floatingActionButton: ProductAddButton(),
+      floatingActionButton: ProductAddButton(
+        ontap: () => showBottomSheet(context),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -50,7 +100,11 @@ class ProductsScreen extends StatelessWidget {
                   children: [
                     CustomFilterChip(label: 'Filter', onTap: () {}),
                     Expanded(
-                      child: Center(child: EmptyProductView(onTap: () {})),
+                      child: Center(
+                        child: EmptyProductView(
+                          onTap: () => showBottomSheet(context),
+                        ),
+                      ),
                     ),
                   ],
                 ),

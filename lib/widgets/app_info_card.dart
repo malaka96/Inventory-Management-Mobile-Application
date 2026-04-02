@@ -116,7 +116,7 @@ class _InfoLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 14,
         color: Color(0xFF6B7280),
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -140,7 +140,7 @@ class _InfoValue extends StatelessWidget {
       style: const TextStyle(
         fontSize: 15,
         color: Color(0xFF0F172A),
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w400,
         height: 1.4,
       ),
     );
