@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product.dart';
+import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
@@ -23,6 +24,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       TextEditingController();
 
   final TextEditingController minimumStockController = TextEditingController();
+
+  final TextEditingController stockController = TextEditingController();
 
   String? selectedCategory;
 
@@ -85,6 +88,38 @@ class _ProductsScreenState extends State<ProductsScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Product added successfully')));
+  }
+
+  void onStockIn(Product product) async {
+    // Implement stock update logic here
+    final Product updatedProduct = Product(
+      id: product.id,
+      name: product.name,
+      quatity: product.quatity + int.parse(stockController.text.trim()),
+      category: product.category,
+      minStock: product.minStock,
+    );
+    await productRepositoryImpl.updateProduct(updatedProduct);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Stock updated successfully')));
+  }
+
+  void onStockOut(Product product) async {
+    // Implement stock update logic here
+    final Product updatedProduct = Product(
+      id: product.id,
+      name: product.name,
+      quatity: product.quatity - int.parse(stockController.text.trim()),
+      category: product.category,
+      minStock: product.minStock,
+    );
+    await productRepositoryImpl.updateProduct(updatedProduct);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Stock updated successfully')));
   }
 
   void showBottomSheet(BuildContext context) {
@@ -172,6 +207,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                     category: product.category,
                                     initialStock: product.quatity,
                                     minStock: product.minStock,
+                                    stockController: stockController,
+                                    onStockIn: () => onStockIn(product),
+                                    onStockOut: () => onStockOut(product)
                                   );
                                 },
                               ),

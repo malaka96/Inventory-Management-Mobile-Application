@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/stock_bottomsheet.dart';
 
 class ProductWidget extends StatelessWidget {
   final String productName;
   final String category;
   final int initialStock;
   final int minStock;
+  final TextEditingController stockController;
+  final VoidCallback onStockIn;
+  final VoidCallback onStockOut;
 
   const ProductWidget({
     super.key,
@@ -12,7 +16,35 @@ class ProductWidget extends StatelessWidget {
     required this.category,
     required this.initialStock,
     required this.minStock,
+    required this.stockController,
+    required this.onStockIn,
+    required this.onStockOut,
   });
+
+  void showBottomSheet(BuildContext context, bool isStockIn,ValueNotifier<int> stockNotifier) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 1,
+          child: StockBottomSheet(
+            isStockIn: isStockIn,
+            productName: productName,
+            currentStock: initialStock,
+            stockController: stockController,
+            onStockIn: () => {
+              onStockIn(),
+              stockNotifier.value += int.parse(stockController.text.trim()),
+            },
+            onStockOut: () => {
+              onStockOut(),
+              stockNotifier.value -= int.parse(stockController.text.trim()),
+            },
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +52,6 @@ class ProductWidget extends StatelessWidget {
     ValueNotifier<int> stockNotifier = ValueNotifier<int>(initialStock);
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: Padding(
         padding: EdgeInsets.all(15),
         child: Column(
@@ -31,6 +62,7 @@ class ProductWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       productName,
@@ -76,15 +108,17 @@ class ProductWidget extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.arrow_downward_sharp),
                       onPressed: () {
-                        if (stockNotifier.value > minStock) {
-                          stockNotifier.value--;
-                        }
+                        // if (stockNotifier.value > minStock) {
+                        //   stockNotifier.value--;
+                        // }
+                        showBottomSheet(context, false, stockNotifier);
                       },
                     ),
                     IconButton(
                       icon: Icon(Icons.arrow_upward_sharp),
                       onPressed: () {
-                        stockNotifier.value++;
+                        // stockNotifier.value++;
+                        showBottomSheet(context, true, stockNotifier);
                       },
                     ),
                   ],

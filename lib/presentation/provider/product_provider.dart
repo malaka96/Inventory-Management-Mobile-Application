@@ -40,4 +40,5 @@ class ProductProvider extends ChangeNotifier {
       print("Error adding product: $e");
     }
   }
+  
 }
