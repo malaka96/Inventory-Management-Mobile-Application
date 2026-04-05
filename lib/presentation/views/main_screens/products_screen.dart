@@ -6,6 +6,7 @@ import 'package:inventory_management_mobile_app/presentation/widgets/custom_filt
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/empty_product_view.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/product_add_button.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatefulWidget {
@@ -166,19 +167,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 itemBuilder: (context, index) {
                                   final product =
                                       productProvider.products[index];
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    tileColor: Colors.white,
-                                    title: Text(product.name),
-                                    subtitle: Text(
-                                      'Quantity: ${product.quatity}',
-                                    ),
-                                    trailing: Text(product.category),
+                                  return ProductWidget(
+                                    productName: product.name,
+                                    category: product.category,
+                                    initialStock: product.quatity,
+                                    minStock: product.minStock,
                                   );
                                 },
                               ),
