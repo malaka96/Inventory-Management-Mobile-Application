@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/domain/entities/product.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/empty_product_view.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/product_add_button.dart';
+import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -32,7 +35,56 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   void onCancel() {}
 
-  void onAddProduct() {}
+  @override
+  void dispose() {
+    productNameController.dispose();
+    initialQuantityController.dispose();
+    minimumStockController.dispose();
+    super.dispose();
+  }
+
+  void onAddProduct() {
+    if (productNameController.text.isEmpty ||
+        initialQuantityController.text.isEmpty ||
+        minimumStockController.text.isEmpty ||
+        selectedCategory == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    final productProvider = context.read<ProductProvider>();
+
+    // Generate a unique ID (using timestamp for simplicity)
+    final id = (DateTime.now().millisecondsSinceEpoch % 0xFFFFFFFF).toInt();
+
+    final product = Product(
+      id: id,
+      name: productNameController.text.trim(),
+      quatity: int.parse(initialQuantityController.text.trim()),
+      category: selectedCategory!,
+      minStock: int.parse(minimumStockController.text.trim()),
+    );
+
+    productProvider.addProduct(product);
+
+    // Clear form
+    productNameController.clear();
+    initialQuantityController.clear();
+    minimumStockController.clear();
+    setState(() {
+      selectedCategory = null;
+    });
+
+    // Close bottom sheet
+    Navigator.of(context).pop();
+
+    // Show success message
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Product added successfully')));
+  }
 
   void showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -57,6 +109,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       floatingActionButton: ProductAddButton(
@@ -101,9 +155,33 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     CustomFilterChip(label: 'Filter', onTap: () {}),
                     Expanded(
                       child: Center(
-                        child: EmptyProductView(
-                          onTap: () => showBottomSheet(context),
-                        ),
+                        child: productProvider.products.isEmpty
+                            ? EmptyProductView(
+                                onTap: () => showBottomSheet(context),
+                              )
+                            : ListView.separated(
+                                itemCount: productProvider.products.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final product =
+                                      productProvider.products[index];
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    tileColor: Colors.white,
+                                    title: Text(product.name),
+                                    subtitle: Text(
+                                      'Quantity: ${product.quatity}',
+                                    ),
+                                    trailing: Text(product.category),
+                                  );
+                                },
+                              ),
                       ),
                     ),
                   ],

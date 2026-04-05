@@ -37,6 +37,7 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       // Handle error
+      print("Error adding product: $e");
     }
   }
 }
