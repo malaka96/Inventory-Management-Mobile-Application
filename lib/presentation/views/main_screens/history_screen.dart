@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_filter_chip.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_search_field.dart';
-import 'package:inventory_management_mobile_app/widgets/empty_history_view.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/empty_history_view.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});

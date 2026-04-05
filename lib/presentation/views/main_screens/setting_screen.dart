@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/widgets/app_info_card.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_action_button.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_setting_tile.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/app_info_card.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_action_button.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_setting_tile.dart';
 
 
 class SettingScreen extends StatelessWidget {

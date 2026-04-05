@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_dropdown_field.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_search_field.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_dropdown_field.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
 
 class AddProductBottomSheetBody extends StatelessWidget {
   final TextEditingController productNameController;

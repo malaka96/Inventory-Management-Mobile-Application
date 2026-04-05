@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/views/main_screens/history_screen.dart';
-import 'package:inventory_management_mobile_app/views/main_screens/home_screen.dart';
-import 'package:inventory_management_mobile_app/views/main_screens/products_screen.dart';
-import 'package:inventory_management_mobile_app/views/main_screens/setting_screen.dart';
+import 'package:inventory_management_mobile_app/presentation/views/main_screens/history_screen.dart';
+import 'package:inventory_management_mobile_app/presentation/views/main_screens/home_screen.dart';
+import 'package:inventory_management_mobile_app/presentation/views/main_screens/products_screen.dart';
+import 'package:inventory_management_mobile_app/presentation/views/main_screens/setting_screen.dart';
 
 class ScreenManager extends StatefulWidget {
   const ScreenManager({super.key});

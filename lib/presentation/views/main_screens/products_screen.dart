@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/widgets/add_product_botton_sheet_body.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_filter_chip.dart';
-import 'package:inventory_management_mobile_app/widgets/custom_search_field.dart';
-import 'package:inventory_management_mobile_app/widgets/empty_product_view.dart';
-import 'package:inventory_management_mobile_app/widgets/product_add_button.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/empty_product_view.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/product_add_button.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});

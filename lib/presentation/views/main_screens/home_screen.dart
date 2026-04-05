@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/widgets/recent_activity.dart';
-import 'package:inventory_management_mobile_app/widgets/summary_card.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/recent_activity.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/summary_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
