@@ -6,8 +6,8 @@ class StockBottomSheet extends StatelessWidget {
   final String productName;
   final int currentStock;
   final TextEditingController stockController;
-  final VoidCallback onStockIn;
-  final VoidCallback onStockOut;
+  final Future<int> Function(int qty) onStockIn;
+  final Future<int> Function(int qty) onStockOut;
 
   const StockBottomSheet({
     super.key,
@@ -17,7 +17,6 @@ class StockBottomSheet extends StatelessWidget {
     required this.stockController,
     required this.onStockIn,
     required this.onStockOut,
-
   });
 
   @override
@@ -81,14 +80,24 @@ class StockBottomSheet extends StatelessWidget {
                 // Action Button (Add Stock / Remove Stock)
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle stock add/remove logic here
-                      if (isStockIn) {
-                        onStockIn();
-                      } else {
-                        onStockOut();
+                    onPressed: () async {
+                      final qty = int.tryParse(stockController.text.trim());
+                      if (qty == null || qty <= 0) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter a valid quantity'),
+                            ),
+                          );
+                        }
+                        return;
                       }
-                      Navigator.pop(context);
+                      if (isStockIn) {
+                        await onStockIn(qty);
+                      } else {
+                        await onStockOut(qty);
+                      }
+                      if (context.mounted) Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isStockIn ? Colors.blue : Colors.red,

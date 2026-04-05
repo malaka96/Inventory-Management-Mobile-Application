@@ -40,5 +40,17 @@ class ProductProvider extends ChangeNotifier {
       print("Error adding product: $e");
     }
   }
-  
+
+  Future<void> updateProduct(Product product) async {
+    try {
+      await productRepository.updateProduct(product);
+      final index = _products.indexWhere((p) => p.id == product.id);
+      if (index != -1) {
+        _products[index] = product;
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Error updating product: $e");
+    }
+  }
 }

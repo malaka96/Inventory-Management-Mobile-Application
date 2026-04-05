@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product.dart';
-import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
@@ -90,36 +89,41 @@ class _ProductsScreenState extends State<ProductsScreen> {
     ).showSnackBar(const SnackBar(content: Text('Product added successfully')));
   }
 
-  void onStockIn(Product product) async {
-    // Implement stock update logic here
-    final Product updatedProduct = Product(
+  Future<int> onStockIn(Product product, int qty) async {
+    final updatedProduct = Product(
       id: product.id,
       name: product.name,
-      quatity: product.quatity + int.parse(stockController.text.trim()),
+      quatity: product.quatity + qty,
       category: product.category,
       minStock: product.minStock,
     );
-    await productRepositoryImpl.updateProduct(updatedProduct);
-    if (!mounted) return;
+    final productProvider = context.read<ProductProvider>();
+    await productProvider.updateProduct(updatedProduct);
+    stockController.clear();
+    if (!mounted) return updatedProduct.quatity;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Stock updated successfully')));
+
+    return updatedProduct.quatity;
   }
 
-  void onStockOut(Product product) async {
-    // Implement stock update logic here
-    final Product updatedProduct = Product(
+  Future<int> onStockOut(Product product, int qty) async {
+    final updatedProduct = Product(
       id: product.id,
       name: product.name,
-      quatity: product.quatity - int.parse(stockController.text.trim()),
+      quatity: product.quatity - qty,
       category: product.category,
       minStock: product.minStock,
     );
-    await productRepositoryImpl.updateProduct(updatedProduct);
-    if (!mounted) return;
+    final productProvider = context.read<ProductProvider>();
+    await productProvider.updateProduct(updatedProduct);
+    stockController.clear();
+    if (!mounted) return updatedProduct.quatity;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Stock updated successfully')));
+    return updatedProduct.quatity;
   }
 
   void showBottomSheet(BuildContext context) {
@@ -208,8 +212,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                     initialStock: product.quatity,
                                     minStock: product.minStock,
                                     stockController: stockController,
-                                    onStockIn: () => onStockIn(product),
-                                    onStockOut: () => onStockOut(product)
+                                    onStockIn: (qty) => onStockIn(product, qty),
+                                    onStockOut: (qty) =>
+                                        onStockOut(product, qty),
                                   );
                                 },
                               ),

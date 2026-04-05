@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/stock_bottomsheet.dart';
 
-class ProductWidget extends StatelessWidget {
+class ProductWidget extends StatefulWidget {
   final String productName;
   final String category;
   final int initialStock;
   final int minStock;
   final TextEditingController stockController;
-  final VoidCallback onStockIn;
-  final VoidCallback onStockOut;
+  final Future<int> Function(int qty) onStockIn;
+  final Future<int> Function(int qty) onStockOut;
 
   const ProductWidget({
     super.key,
@@ -21,7 +21,34 @@ class ProductWidget extends StatelessWidget {
     required this.onStockOut,
   });
 
-  void showBottomSheet(BuildContext context, bool isStockIn,ValueNotifier<int> stockNotifier) {
+  @override
+  State<ProductWidget> createState() => _ProductWidgetState();
+}
+
+class _ProductWidgetState extends State<ProductWidget> {
+  late ValueNotifier<int> stockNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    stockNotifier = ValueNotifier<int>(widget.initialStock);
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialStock != widget.initialStock) {
+      stockNotifier.value = widget.initialStock;
+    }
+  }
+
+  @override
+  void dispose() {
+    stockNotifier.dispose();
+    super.dispose();
+  }
+
+  void showBottomSheet(BuildContext context, bool isStockIn) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -29,16 +56,18 @@ class ProductWidget extends StatelessWidget {
           heightFactor: 1,
           child: StockBottomSheet(
             isStockIn: isStockIn,
-            productName: productName,
-            currentStock: initialStock,
-            stockController: stockController,
-            onStockIn: () => {
-              onStockIn(),
-              stockNotifier.value += int.parse(stockController.text.trim()),
+            productName: widget.productName,
+            currentStock: stockNotifier.value,
+            stockController: widget.stockController,
+            onStockIn: (qty) async {
+              final updatedStock = await widget.onStockIn(qty);
+              stockNotifier.value = updatedStock;
+              return updatedStock;
             },
-            onStockOut: () => {
-              onStockOut(),
-              stockNotifier.value -= int.parse(stockController.text.trim()),
+            onStockOut: (qty) async {
+              final updatedStock = await widget.onStockOut(qty);
+              stockNotifier.value = updatedStock;
+              return updatedStock;
             },
           ),
         );
@@ -48,9 +77,6 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Using a ValueNotifier to track the stock value
-    ValueNotifier<int> stockNotifier = ValueNotifier<int>(initialStock);
-
     return Card(
       child: Padding(
         padding: EdgeInsets.all(15),
@@ -65,13 +91,13 @@ class ProductWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      productName,
+                      widget.productName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    Text(category),
+                    Text(widget.category),
                   ],
                 ),
                 ValueListenableBuilder<int>(
@@ -108,17 +134,13 @@ class ProductWidget extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.arrow_downward_sharp),
                       onPressed: () {
-                        // if (stockNotifier.value > minStock) {
-                        //   stockNotifier.value--;
-                        // }
-                        showBottomSheet(context, false, stockNotifier);
+                        showBottomSheet(context, false);
                       },
                     ),
                     IconButton(
                       icon: Icon(Icons.arrow_upward_sharp),
                       onPressed: () {
-                        // stockNotifier.value++;
-                        showBottomSheet(context, true, stockNotifier);
+                        showBottomSheet(context, true);
                       },
                     ),
                   ],
@@ -140,7 +162,7 @@ class ProductWidget extends StatelessWidget {
                   },
                 ),
                 SizedBox(width: 20),
-                Text('Min: $minStock'),
+                Text('Min: ${widget.minStock}'),
               ],
             ),
           ],
