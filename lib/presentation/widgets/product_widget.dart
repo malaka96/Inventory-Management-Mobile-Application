@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/stock_bottomsheet.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/update_product_bottom_sheet.dart';
 
 class ProductWidget extends StatefulWidget {
   final String productName;
@@ -27,11 +28,21 @@ class ProductWidget extends StatefulWidget {
 
 class _ProductWidgetState extends State<ProductWidget> {
   late ValueNotifier<int> stockNotifier;
+  late TextEditingController productNameController;
+  late TextEditingController initialQuantityController;
+  late TextEditingController minimumStockController;
 
   @override
   void initState() {
     super.initState();
     stockNotifier = ValueNotifier<int>(widget.initialStock);
+    productNameController = TextEditingController(text: widget.productName);
+    initialQuantityController = TextEditingController(
+      text: widget.initialStock.toString(),
+    );
+    minimumStockController = TextEditingController(
+      text: widget.minStock.toString(),
+    );
   }
 
   @override
@@ -45,6 +56,9 @@ class _ProductWidgetState extends State<ProductWidget> {
   @override
   void dispose() {
     stockNotifier.dispose();
+    productNameController.dispose();
+    initialQuantityController.dispose();
+    minimumStockController.dispose();
     super.dispose();
   }
 
@@ -75,97 +89,132 @@ class _ProductWidgetState extends State<ProductWidget> {
     );
   }
 
+  void showProductUpdateBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return UpdateProductBottomSheetBody(
+          productNameController: productNameController,
+          initialQuantityController: initialQuantityController,
+          minimumStockController: minimumStockController,
+          selectedCategory: widget.category,
+          categories: const [
+            "Electronic", "Clothes", "Hardware", "Other"
+          ],
+          onCategoryChanged: (newCategory) {
+            // Handle category change
+          },
+          onDelete: () {
+            Navigator.pop(context);
+            // Add delete functionality here
+          },
+          onAddProduct: () {
+            Navigator.pop(context);
+            // Add update functionality here
+          },
+          onClose: () => Navigator.pop(context),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // First Row: Product Name and Stock Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.productName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(widget.category),
-                  ],
-                ),
-                ValueListenableBuilder<int>(
-                  valueListenable: stockNotifier,
-                  builder: (context, stock, child) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: stock > 0 ? Colors.green[100] : Colors.red[100],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Text(
-                        stock > 0 ? "In Stock" : "Out of Stock",
+    return GestureDetector(
+      onLongPress: () => showProductUpdateBottomSheet(context),
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // First Row: Product Name and Stock Status
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.productName,
                         style: TextStyle(
-                          color: stock > 0 ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      Text(widget.category),
+                    ],
+                  ),
+                  ValueListenableBuilder<int>(
+                    valueListenable: stockNotifier,
+                    builder: (context, stock, child) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: stock > 0
+                              ? Colors.green[100]
+                              : Colors.red[100],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          stock > 0 ? "In Stock" : "Out of Stock",
+                          style: TextStyle(
+                            color: stock > 0 ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
 
-            // Second Row: Category and Add/Remove Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(width: 2), // Spacer
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_downward_sharp),
-                      onPressed: () {
-                        showBottomSheet(context, false);
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.arrow_upward_sharp),
-                      onPressed: () {
-                        showBottomSheet(context, true);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              // Second Row: Category and Add/Remove Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(width: 2), // Spacer
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_downward_sharp),
+                        onPressed: () {
+                          showBottomSheet(context, false);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.arrow_upward_sharp),
+                        onPressed: () {
+                          showBottomSheet(context, true);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
 
-            // Stock Quantity and Minimum Quantity
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                ValueListenableBuilder<int>(
-                  valueListenable: stockNotifier,
-                  builder: (context, stock, child) {
-                    return Text(
-                      'Quantity: $stock',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    );
-                  },
-                ),
-                SizedBox(width: 20),
-                Text('Min: ${widget.minStock}'),
-              ],
-            ),
-          ],
+              // Stock Quantity and Minimum Quantity
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  ValueListenableBuilder<int>(
+                    valueListenable: stockNotifier,
+                    builder: (context, stock, child) {
+                      return Text(
+                        'Quantity: $stock',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      );
+                    },
+                  ),
+                  SizedBox(width: 20),
+                  Text('Min: ${widget.minStock}'),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

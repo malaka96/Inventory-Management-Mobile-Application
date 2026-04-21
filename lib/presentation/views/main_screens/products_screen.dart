@@ -30,6 +30,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
 
+  
+
   void onCategoryChanged(String? value) {
     setState(() {
       selectedCategory = value ?? "";

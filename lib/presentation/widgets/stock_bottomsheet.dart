@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/custom_text_field.dart';
 
 class StockBottomSheet extends StatelessWidget {
   final bool isStockIn;
@@ -53,7 +53,7 @@ class StockBottomSheet extends StatelessWidget {
               'Quantity *',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
-            CustomSearchField(
+            CustomTextField(
               hintText: 'Enter quantity',
               controller: stockController,
             ),

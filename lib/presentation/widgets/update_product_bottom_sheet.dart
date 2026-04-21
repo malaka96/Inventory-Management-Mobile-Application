@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_dropdown_field.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_text_field.dart';
 
-class AddProductBottomSheetBody extends StatelessWidget {
+class UpdateProductBottomSheetBody extends StatelessWidget {
   final TextEditingController productNameController;
   final TextEditingController initialQuantityController;
   final TextEditingController minimumStockController;
   final String? selectedCategory;
   final List<String> categories;
   final ValueChanged<String?> onCategoryChanged;
-  final VoidCallback onCancel;
+  final VoidCallback onDelete;
   final VoidCallback onAddProduct;
   final VoidCallback? onClose;
 
-  const AddProductBottomSheetBody({
+  const UpdateProductBottomSheetBody({
     super.key,
     required this.productNameController,
     required this.initialQuantityController,
@@ -21,7 +21,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
     required this.selectedCategory,
     required this.categories,
     required this.onCategoryChanged,
-    required this.onCancel,
+    required this.onDelete,
     required this.onAddProduct,
     this.onClose,
   });
@@ -45,7 +45,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 children: [
                   const Expanded(
                     child: Text(
-                      'Add Product',
+                      'Update Product',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -113,8 +113,9 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: onCancel,
+                      onPressed: onDelete,
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.red,
                         minimumSize: const Size.fromHeight(48),
                         side: const BorderSide(color: Color(0xFFD1D5DB)),
                         shape: RoundedRectangleBorder(
@@ -122,11 +123,11 @@ class AddProductBottomSheetBody extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'Cancel',
+                        'Delete',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF0F172A),
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -144,7 +145,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'Add Product',
+                        'Update',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
