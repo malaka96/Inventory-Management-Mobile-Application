@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product.dart';
+import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
+import 'package:inventory_management_mobile_app/domain/repository/product_status_repository.dart';
+import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
@@ -98,7 +101,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
       minStock: product.minStock,
     );
     final productProvider = context.read<ProductProvider>();
+
     await productProvider.updateProduct(updatedProduct);
+
+    // Save product status with status = false for stockIn
+    final productStatus = ProductStatus(
+      productName: product.name,
+      status: false,
+      timestamp: DateTime.now(),
+      value: qty,
+    );
+    await productStatusRepositoryImpl.addProductStatus(productStatus);
+
     stockController.clear();
     if (!mounted) return updatedProduct.quatity;
     ScaffoldMessenger.of(
@@ -117,7 +131,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
       minStock: product.minStock,
     );
     final productProvider = context.read<ProductProvider>();
+
     await productProvider.updateProduct(updatedProduct);
+
+    // Save product status with status = true for stockOut
+    final productStatus = ProductStatus(
+      productName: product.name,
+      status: true,
+      timestamp: DateTime.now(),
+      value: qty,
+    );
+    await productStatusRepositoryImpl.addProductStatus(productStatus);
+
     stockController.clear();
     if (!mounted) return updatedProduct.quatity;
     ScaffoldMessenger.of(
