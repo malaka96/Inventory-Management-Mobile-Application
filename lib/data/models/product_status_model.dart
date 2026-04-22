@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
 
 part 'product_status_model.g.dart';
 
@@ -22,5 +23,22 @@ class ProductStatusModel extends HiveObject {
     required this.timestamp,
     required this.value,
   });
-}
 
+  factory ProductStatusModel.fromEntity(ProductStatus productStatus) {
+    return ProductStatusModel(
+      productName: productStatus.productName,
+      status: productStatus.status,
+      timestamp: productStatus.timestamp,
+      value: productStatus.value,
+    );
+  }
+
+  ProductStatus toEntity() {
+    return ProductStatus(
+      productName: productName,
+      status: status,
+      timestamp: timestamp,
+      value: value,
+    );
+  }
+}
