@@ -23,3 +23,4 @@ class ProductStatusModel extends HiveObject {
     required this.value,
   });
 }
+

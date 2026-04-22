@@ -18,21 +18,24 @@ class ProductStatusModelAdapter extends TypeAdapter<ProductStatusModel> {
     };
     return ProductStatusModel(
       productName: fields[0] as String,
-      status: fields[1] as String,
+      status: fields[1] as bool,
       timestamp: fields[2] as DateTime,
+      value: fields[3] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductStatusModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
       ..write(obj.status)
       ..writeByte(2)
-      ..write(obj.timestamp);
+      ..write(obj.timestamp)
+      ..writeByte(3)
+      ..write(obj.value);
   }
 
   @override
