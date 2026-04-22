@@ -53,4 +53,14 @@ class ProductProvider extends ChangeNotifier {
       print("Error updating product: $e");
     }
   }
+
+  Future<void> deleteProduct(int productId) async {
+    try {
+      await productRepository.deleteProduct(productId);
+      _products.removeWhere((p) => p.id == productId);
+      notifyListeners();
+    } catch (e) {
+      print("Error deleting product: $e");
+    }
+  }
 }

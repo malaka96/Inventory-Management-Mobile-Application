@@ -10,7 +10,7 @@ class UpdateProductBottomSheetBody extends StatelessWidget {
   final List<String> categories;
   final ValueChanged<String?> onCategoryChanged;
   final VoidCallback onDelete;
-  final VoidCallback onAddProduct;
+  final VoidCallback onUpdateProduct;
   final VoidCallback? onClose;
 
   const UpdateProductBottomSheetBody({
@@ -22,7 +22,7 @@ class UpdateProductBottomSheetBody extends StatelessWidget {
     required this.categories,
     required this.onCategoryChanged,
     required this.onDelete,
-    required this.onAddProduct,
+    required this.onUpdateProduct,
     this.onClose,
   });
 
@@ -135,7 +135,7 @@ class UpdateProductBottomSheetBody extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: onAddProduct,
+                      onPressed: onUpdateProduct,
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                         backgroundColor: const Color(0xFF5E7BF9),

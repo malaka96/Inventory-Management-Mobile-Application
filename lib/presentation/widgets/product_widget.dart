@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/domain/entities/product.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/stock_bottomsheet.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/update_product_bottom_sheet.dart';
 
 class ProductWidget extends StatefulWidget {
+  final int productId;
   final String productName;
   final String category;
   final int initialStock;
@@ -10,9 +12,12 @@ class ProductWidget extends StatefulWidget {
   final TextEditingController stockController;
   final Future<int> Function(int qty) onStockIn;
   final Future<int> Function(int qty) onStockOut;
+  final Future<void> Function(int productId) onDelete;
+  final Future<void> Function(Product product) onUpdate;
 
   const ProductWidget({
     super.key,
+    required this.productId,
     required this.productName,
     required this.category,
     required this.initialStock,
@@ -20,6 +25,8 @@ class ProductWidget extends StatefulWidget {
     required this.stockController,
     required this.onStockIn,
     required this.onStockOut,
+    required this.onDelete,
+    required this.onUpdate,
   });
 
   @override
@@ -31,6 +38,7 @@ class _ProductWidgetState extends State<ProductWidget> {
   late TextEditingController productNameController;
   late TextEditingController initialQuantityController;
   late TextEditingController minimumStockController;
+  late String selectedCategory;
 
   @override
   void initState() {
@@ -43,6 +51,7 @@ class _ProductWidgetState extends State<ProductWidget> {
     minimumStockController = TextEditingController(
       text: widget.minStock.toString(),
     );
+    selectedCategory = widget.category;
   }
 
   @override
@@ -99,19 +108,30 @@ class _ProductWidgetState extends State<ProductWidget> {
           initialQuantityController: initialQuantityController,
           minimumStockController: minimumStockController,
           selectedCategory: widget.category,
-          categories: const [
-            "Electronic", "Clothes", "Hardware", "Other"
-          ],
+          categories: const ["Electronic", "Clothes", "Hardware", "Other"],
           onCategoryChanged: (newCategory) {
-            // Handle category change
+            setState(() {
+              selectedCategory = newCategory ?? widget.category;
+            });
           },
-          onDelete: () {
-            Navigator.pop(context);
-            // Add delete functionality here
+          onDelete: () async {
+            await widget.onDelete(widget.productId);
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           },
-          onAddProduct: () {
-            Navigator.pop(context);
-            // Add update functionality here
+          onUpdateProduct: () async {
+            final updatedProduct = Product(
+              id: widget.productId,
+              name: productNameController.text.trim(),
+              quatity: int.parse(initialQuantityController.text.trim()),
+              category: selectedCategory,
+              minStock: int.parse(minimumStockController.text.trim()),
+            );
+            await widget.onUpdate(updatedProduct);
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           },
           onClose: () => Navigator.pop(context),
         );

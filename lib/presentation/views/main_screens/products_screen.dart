@@ -30,8 +30,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
 
-  
-
   void onCategoryChanged(String? value) {
     setState(() {
       selectedCategory = value ?? "";
@@ -128,6 +126,38 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return updatedProduct.quatity;
   }
 
+  Future<void> onDelete(dynamic productId) async {
+    final productProvider = context.read<ProductProvider>();
+    try {
+      await productProvider.deleteProduct(productId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product deleted successfully')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error deleting product: $e')));
+    }
+  }
+
+  Future<void> onUpdate(Product product) async {
+    final productProvider = context.read<ProductProvider>();
+    try {
+      await productProvider.updateProduct(product);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product updated successfully')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating product: $e')));
+    }
+  }
+
   void showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -209,6 +239,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   final product =
                                       productProvider.products[index];
                                   return ProductWidget(
+                                    productId: product.id,
                                     productName: product.name,
                                     category: product.category,
                                     initialStock: product.quatity,
@@ -217,6 +248,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                     onStockIn: (qty) => onStockIn(product, qty),
                                     onStockOut: (qty) =>
                                         onStockOut(product, qty),
+                                    onDelete: (productId) =>
+                                        onDelete(productId),
+                                    onUpdate: (product) => onUpdate(product),
                                   );
                                 },
                               ),
