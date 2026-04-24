@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
-import 'package:inventory_management_mobile_app/domain/repository/product_status_repository.dart';
 import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
@@ -14,6 +13,7 @@ import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
+
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
