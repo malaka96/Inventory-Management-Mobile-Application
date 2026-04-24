@@ -5,6 +5,7 @@ class StockCard extends StatelessWidget {
   final String subtitle;
   final String dateTime;
   final int quantity;
+  final bool status;
 
   const StockCard({
     super.key,
@@ -12,6 +13,7 @@ class StockCard extends StatelessWidget {
     required this.subtitle,
     required this.dateTime,
     required this.quantity,
+    required this.status
   });
 
   @override
@@ -24,7 +26,7 @@ class StockCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -33,10 +35,21 @@ class StockCard extends StatelessWidget {
       child: Row(
         children: [
           // Left Icon
-          Container(
+          status ? Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.arrow_downward,
+              color: Colors.red,
+              size: 20,
+            ),
+          ) : Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -63,25 +76,26 @@ class StockCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   dateTime,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                 ),
               ],
             ),
           ),
 
           // Right Quantity
-          Text(
+          status ? Text(
+            "-$quantity",
+            style: const TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ) : Text(
             "+$quantity",
             style: const TextStyle(
               color: Colors.green,

@@ -48,7 +48,7 @@ class HistoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomFilterChip(label: 'Filter', onTap: () {}),
-                    StockCard(title: "Title", subtitle: "Subtitle", dateTime: "2026/03/23", quantity: 96)
+                    StockCard(title: "Title", subtitle: "Subtitle", dateTime: "2026/03/23", quantity: 96,status: true,)
                     // Expanded(
                     //   child: Center(child: EmptyHistoryView()),
                     // ),
