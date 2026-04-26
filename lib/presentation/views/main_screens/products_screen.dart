@@ -3,6 +3,7 @@ import 'package:inventory_management_mobile_app/domain/entities/product.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
 import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
@@ -101,6 +102,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       minStock: product.minStock,
     );
     final productProvider = context.read<ProductProvider>();
+    final productStatusProvider = context.read<ProductStatusProvider>();
 
     await productProvider.updateProduct(updatedProduct);
 
@@ -111,7 +113,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
       timestamp: DateTime.now(),
       value: qty,
     );
-    await productStatusRepositoryImpl.addProductStatus(productStatus);
+    // await productStatusRepositoryImpl.addProductStatus(productStatus);
+    await productStatusProvider.addProductStatus(productStatus);
 
     stockController.clear();
     if (!mounted) return updatedProduct.quatity;
@@ -130,7 +133,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       category: product.category,
       minStock: product.minStock,
     );
+
     final productProvider = context.read<ProductProvider>();
+    final productStatusProvider = context.read<ProductStatusProvider>();
 
     await productProvider.updateProduct(updatedProduct);
 
@@ -141,7 +146,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
       timestamp: DateTime.now(),
       value: qty,
     );
-    await productStatusRepositoryImpl.addProductStatus(productStatus);
+    // await productStatusRepositoryImpl.addProductStatus(productStatus);
+    
+    await productStatusProvider.addProductStatus(productStatus);
 
     stockController.clear();
     if (!mounted) return updatedProduct.quatity;
