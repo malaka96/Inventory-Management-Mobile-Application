@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product.dart';
 import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
-import 'package:inventory_management_mobile_app/injection.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/add_product_botton_sheet_body.dart';

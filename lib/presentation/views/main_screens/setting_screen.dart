@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/app_info_card.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_action_button.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_setting_tile.dart';
-
+import 'package:provider/provider.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -63,8 +65,7 @@ class SettingScreen extends StatelessWidget {
                       iconColor: const Color(0xFF10B981),
                       iconBackgroundColor: const Color(0xFFEAFBF3),
                       title: 'Import Data',
-                      description:
-                          'Restore your inventory from a backup file',
+                      description: 'Restore your inventory from a backup file',
                       buttonText: 'Import Backup',
                       buttonColor: const Color(0xFFF1F5F9),
                       buttonTextColor: const Color(0xFF0F172A),
@@ -89,7 +90,28 @@ class SettingScreen extends StatelessWidget {
                       buttonTextColor: Colors.white,
                       borderColor: const Color(0xFFFECACA),
                       isDanger: true,
-                      onButtonPressed: () {},
+                      onButtonPressed: () {
+                        _showClearAllDataDialog(context);
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    CustomActionCard(
+                      icon: Icons.warning_amber_rounded,
+                      iconColor: const Color(0xFFFF4D4F),
+                      iconBackgroundColor: const Color(0xFFFFF1F2),
+                      title: 'Clear History',
+                      description:
+                          'Remove all transaction history while keeping your product data intact.',
+                      buttonText: 'Clear History',
+                      buttonColor: const Color(0xFFFF4D4F),
+                      buttonTextColor: Colors.white,
+                      borderColor: const Color(0xFFFECACA),
+                      isDanger: true,
+                      onButtonPressed: () {
+                        _showClearHistoryDialog(context);
+                      },
                     ),
 
                     const SizedBox(height: 24),
@@ -131,6 +153,95 @@ class SettingScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showClearAllDataDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Clear All Data?'),
+          content: const Text(
+            'This will permanently delete all products and transaction history. This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                // Clear all products and transaction history
+                final productProvider = context.read<ProductProvider>();
+                final productStatusProvider = context
+                    .read<ProductStatusProvider>();
+
+                await productProvider.clearAllProducts();
+                await productStatusProvider.clearAllProductStatuses();
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('All data cleared successfully'),
+                      backgroundColor: Color(0xFFFF4D4F),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFF4D4F),
+              ),
+              child: const Text('Clear All Data'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showClearHistoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Clear Transaction History?'),
+          content: const Text(
+            'This will permanently delete all transaction history. Your product data will remain intact. This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                final productStatusProvider = context
+                    .read<ProductStatusProvider>();
+
+                await productStatusProvider.clearAllProductStatuses();
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Transaction history cleared successfully'),
+                      backgroundColor: Color(0xFFFF4D4F),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFF4D4F),
+              ),
+              child: const Text('Clear History'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
