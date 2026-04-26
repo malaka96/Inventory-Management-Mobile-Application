@@ -41,6 +41,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
     "Low Stock",
     "Out of Stock",
   ];
+  List<String> filterCategories = [
+    "All",
+    "Electronic",
+    "Clothes",
+    "Hardware",
+    "Other",
+  ];
 
   void onCategoryChanged(String? value) {
     setState(() {
@@ -62,9 +69,44 @@ class _ProductsScreenState extends State<ProductsScreen> {
     });
   }
 
+  List<Product> getFilteredProducts(List<Product> allProducts) {
+    return allProducts.where((product) {
+      if (selectedFilterCategory != null &&
+          selectedFilterCategory != "All" &&
+          selectedFilterCategory!.isNotEmpty) {
+        if (product.category != selectedFilterCategory) {
+          return false;
+        }
+      }
+
+      // Filter by stock status
+      if (selectedFilterStatus != null && selectedFilterStatus != "All") {
+        bool isInStock =
+            product.quatity > 0 && product.quatity >= product.minStock;
+        bool isLowStock =
+            product.quatity > 0 && product.quatity < product.minStock;
+        bool isOutOfStock = product.quatity <= 0;
+
+        switch (selectedFilterStatus) {
+          case "In Stock":
+            if (!isInStock) return false;
+            break;
+          case "Low Stock":
+            if (!isLowStock) return false;
+            break;
+          case "Out of Stock":
+            if (!isOutOfStock) return false;
+            break;
+        }
+      }
+
+      return true;
+    }).toList();
+  }
+
   void onApplyFilter() {
-    // TODO: Implement filter logic
     Navigator.pop(context);
+    setState(() {});
   }
 
   void showFilterBottomSheet(BuildContext context) {
@@ -75,7 +117,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         selectedStockStatus: selectedFilterStatus,
         selectedCategory: selectedFilterCategory,
         stockStatusOptions: stockStatusOptions,
-        categories: categories,
+        categories: filterCategories,
         onStockStatusChanged: onFilterStatusChanged,
         onCategoryChanged: onFilterCategoryChanged,
         onCancel: () => Navigator.pop(context),
@@ -256,6 +298,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final filteredProducts = getFilteredProducts(productProvider.products);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
@@ -304,17 +347,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                     Expanded(
                       child: Center(
-                        child: productProvider.products.isEmpty
+                        child: filteredProducts.isEmpty
                             ? EmptyProductView(
                                 onTap: () => showBottomSheet(context),
                               )
                             : ListView.separated(
-                                itemCount: productProvider.products.length,
+                                itemCount: filteredProducts.length,
                                 separatorBuilder: (context, index) =>
                                     const SizedBox(height: 12),
                                 itemBuilder: (context, index) {
-                                  final product =
-                                      productProvider.products[index];
+                                  final product = filteredProducts[index];
                                   return ProductWidget(
                                     productId: product.id,
                                     productName: product.name,
