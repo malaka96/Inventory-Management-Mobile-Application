@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/low_stock_card.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/out_of_stock_summary_card.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/recent_activity.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/summary_card.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/stock_card.dart';
@@ -59,33 +60,60 @@ class HomeScreen extends StatelessWidget {
                     left: 20,
                     right: 20,
                     bottom: -40,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SummaryCard(
-                            title: "Total\nProducts",
-                            value: "0",
-                            icon: Icons.inventory_2_outlined,
-                            iconBgColor: const Color(0xFFE8ECFF),
-                            iconColor: const Color(0xFF6C83F7),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: SummaryCard(
-                            title: "Low\nStock",
-                            value: "0",
-                            icon: Icons.warning_amber_rounded,
-                            iconBgColor: const Color(0xFFFFF1DD),
-                            iconColor: const Color(0xFFFFA000),
-                          ),
-                        ),
-                      ],
+                    child: Consumer<ProductProvider>(
+                      builder: (context, productProvider, child) {
+                        final totalProducts = productProvider.products.length;
+                        final lowStockCount =
+                            productProvider.lowStockProducts.length;
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: SummaryCard(
+                                title: "Total\nProducts",
+                                value: totalProducts.toString(),
+                                icon: Icons.inventory_2_outlined,
+                                iconBgColor: const Color(0xFFE8ECFF),
+                                iconColor: const Color(0xFF6C83F7),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: SummaryCard(
+                                title: "Low\nStock",
+                                value: lowStockCount.toString(),
+                                icon: Icons.warning_amber_rounded,
+                                iconBgColor: const Color(0xFFFFF1DD),
+                                iconColor: const Color(0xFFFFA000),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 60),
+              Consumer<ProductProvider>(
+                builder: (context, productProvider, child) {
+                  final outOfStockCount = productProvider.outOfStockCount;
+                  if (outOfStockCount <= 0) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutOfStockSummaryCard(
+                        value: outOfStockCount.toString(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
               // Low Stock Items title
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),

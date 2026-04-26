@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 
-class SummaryCard extends StatelessWidget {
-  final String title;
+class OutOfStockSummaryCard extends StatelessWidget {
   final String value;
-  final IconData icon;
-  final Color iconBgColor;
-  final Color iconColor;
-  final Color backgroundColor;
-  const SummaryCard({
+
+  const OutOfStockSummaryCard({
     super.key,
-    required this.title,
     required this.value,
-    required this.icon,
-    required this.iconBgColor,
-    required this.iconColor,
-    this.backgroundColor = Colors.white,
   });
 
   @override
@@ -22,8 +13,9 @@ class SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: const Color(0xFFFFEBEE),
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFCDD2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -41,9 +33,9 @@ class SummaryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
+                  const Text(
+                    "Out of Stock",
+                    style: TextStyle(
                       fontSize: 14,
                       color: Color(0xFF6B7280),
                       height: 1.4,
@@ -65,10 +57,14 @@ class SummaryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconBgColor,
+              color: const Color(0xFFFFCDD2),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, size: 24, color: iconColor),
+            child: const Icon(
+              Icons.remove_shopping_cart_outlined,
+              size: 24,
+              color: Color(0xFFD32F2F),
+            ),
           ),
         ],
       ),

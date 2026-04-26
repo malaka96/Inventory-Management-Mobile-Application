@@ -15,6 +15,8 @@ class ProductProvider extends ChangeNotifier {
   List<Product> get lowStockProducts => List.unmodifiable(_lowStockProducts);
   bool get isLoading => _isLoading;
 
+  int get outOfStockCount => _products.where((p) => p.quatity <= 0).length;
+
   bool _isLowStock(Product product) => product.quatity <= product.minStock;
 
   void _rebuildLowStockProducts() {
