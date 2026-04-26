@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/domain/entities/product_status.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
@@ -46,12 +47,80 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
+  List<String> getProductNames(List<ProductStatus> statuses) {
+    final names = <String>{"All"};
+    for (var status in statuses) {
+      names.add(status.productName);
+    }
+    return names.toList();
+  }
+
+  bool isWithinDateRange(DateTime timestamp, String? dateRange) {
+    if (dateRange == null || dateRange == "All Items") {
+      return true;
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final statusDate = DateTime(timestamp.year, timestamp.month, timestamp.day);
+
+    switch (dateRange) {
+      case "Today":
+        return statusDate == today;
+      case "Last 7 Days":
+        return statusDate.isAfter(today.subtract(const Duration(days: 7)));
+      case "Last 30 Days":
+        return statusDate.isAfter(today.subtract(const Duration(days: 30)));
+      default:
+        return true;
+    }
+  }
+
+  List<ProductStatus> getFilteredStatuses(List<ProductStatus> allStatuses) {
+    return allStatuses.where((status) {
+      // Filter by transaction type (All, Stock In, Stock Out)
+      if (selectedFilterTransactionType != null &&
+          selectedFilterTransactionType != "All") {
+        bool isStockIn = !status.status;
+        bool isStockOut = status.status;
+
+        switch (selectedFilterTransactionType) {
+          case "Stock In":
+            if (!isStockIn) return false;
+            break;
+          case "Stock Out":
+            if (!isStockOut) return false;
+            break;
+        }
+      }
+
+      // Filter by product name
+      if (selectedFilterProduct != null && selectedFilterProduct != "All") {
+        if (status.productName != selectedFilterProduct) {
+          return false;
+        }
+      }
+
+      // Filter by date range
+      if (!isWithinDateRange(status.timestamp, selectedFilterDateRange)) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
   void onApplyHistoryFilter() {
-    // TODO: Implement filter logic
     Navigator.pop(context);
+    setState(() {});
   }
 
   void showHistoryFilterBottomSheet(BuildContext context) {
+    final productStatusProvider = context.read<ProductStatusProvider>();
+    final dynamicProductOptions = getProductNames(
+      productStatusProvider.productStatuses,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -60,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         selectedProduct: selectedFilterProduct,
         selectedDateRange: selectedFilterDateRange,
         transactionTypeOptions: transactionTypeOptions,
-        productOptions: productOptions,
+        productOptions: dynamicProductOptions,
         dateRangeOptions: dateRangeOptions,
         onTransactionTypeChanged: onFilterTransactionTypeChanged,
         onProductChanged: onFilterProductChanged,
@@ -74,6 +143,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final productStatusProvider = context.watch<ProductStatusProvider>();
+    final filteredStatuses = getFilteredStatuses(
+      productStatusProvider.productStatuses,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
@@ -126,13 +198,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     // ),
                     productStatusProvider.productStatuses.isEmpty
                         ? Expanded(child: Center(child: EmptyHistoryView()))
+                        : filteredStatuses.isEmpty
+                        ? Expanded(
+                            child: Center(
+                              child: Text(
+                                'No transactions found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          )
                         : Expanded(
                             child: ListView.builder(
-                              itemCount:
-                                  productStatusProvider.productStatuses.length,
+                              itemCount: filteredStatuses.length,
                               itemBuilder: (context, index) {
-                                final status = productStatusProvider
-                                    .productStatuses[index];
+                                final status = filteredStatuses[index];
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 8.0,
