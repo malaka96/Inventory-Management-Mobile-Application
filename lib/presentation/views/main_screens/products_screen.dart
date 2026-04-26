@@ -21,6 +21,7 @@ class ProductsScreen extends StatefulWidget {
 
 class _ProductsScreenState extends State<ProductsScreen> {
   final TextEditingController productNameController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   final TextEditingController initialQuantityController =
       TextEditingController();
@@ -33,6 +34,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   String? selectedFilterStatus;
   String? selectedFilterCategory;
+  String _searchQuery = '';
 
   List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
   List<String> stockStatusOptions = [
@@ -71,6 +73,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   List<Product> getFilteredProducts(List<Product> allProducts) {
     return allProducts.where((product) {
+      final q = _searchQuery.trim().toLowerCase();
+      if (q.isNotEmpty && !product.name.toLowerCase().contains(q)) {
+        return false;
+      }
+
       if (selectedFilterCategory != null &&
           selectedFilterCategory != "All" &&
           selectedFilterCategory!.isNotEmpty) {
@@ -129,6 +136,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   void dispose() {
     productNameController.dispose();
+    searchController.dispose();
     initialQuantityController.dispose();
     minimumStockController.dispose();
     super.dispose();
@@ -318,10 +326,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 //   bottomRight: Radius.circular(28),
                 // ),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Products',
                     style: TextStyle(
                       color: Colors.white,
@@ -329,8 +337,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  CustomSearchField(hintText: 'Search products...'),
+                  const SizedBox(height: 16),
+                  CustomSearchField(
+                    controller: searchController,
+                    hintText: 'Search products...',
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
