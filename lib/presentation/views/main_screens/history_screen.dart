@@ -19,6 +19,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   String? selectedFilterTransactionType;
   String? selectedFilterProduct;
   String? selectedFilterDateRange;
+  final TextEditingController searchController = TextEditingController();
+  String _searchQuery = '';
 
   final List<String> transactionTypeOptions = ["All", "Stock In", "Stock Out"];
   final List<String> dateRangeOptions = [
@@ -78,6 +80,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   List<ProductStatus> getFilteredStatuses(List<ProductStatus> allStatuses) {
     return allStatuses.where((status) {
+      final q = _searchQuery.trim().toLowerCase();
+      if (q.isNotEmpty && !status.productName.toLowerCase().contains(q)) {
+        return false;
+      }
+
       // Filter by transaction type (All, Stock In, Stock Out)
       if (selectedFilterTransactionType != null &&
           selectedFilterTransactionType != "All") {
@@ -141,6 +148,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final productStatusProvider = context.watch<ProductStatusProvider>();
     final filteredStatuses = getFilteredStatuses(
@@ -162,10 +175,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 //   bottomRight: Radius.circular(28),
                 // ),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'History',
                     style: TextStyle(
                       color: Colors.white,
@@ -173,8 +186,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  CustomSearchField(hintText: 'Search products...'),
+                  const SizedBox(height: 16),
+                  CustomSearchField(
+                    controller: searchController,
+                    hintText: 'Search products...',
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
