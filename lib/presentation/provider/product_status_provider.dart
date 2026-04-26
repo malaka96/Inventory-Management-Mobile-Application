@@ -20,6 +20,8 @@ class ProductStatusProvider extends ChangeNotifier {
 
     try {
       final fetchedStatuses = await productStatusRepository.getProductStatus();
+      // Sort by timestamp descending (latest first)
+      fetchedStatuses.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       _productStatuses
         ..clear()
         ..addAll(fetchedStatuses);
@@ -35,7 +37,7 @@ class ProductStatusProvider extends ChangeNotifier {
   Future<void> addProductStatus(ProductStatus productStatus) async {
     try {
       await productStatusRepository.addProductStatus(productStatus);
-      _productStatuses.add(productStatus);
+      _productStatuses.insert(0, productStatus);
       notifyListeners();
     } catch (e) {
       // Handle error

@@ -7,13 +7,13 @@ import 'package:inventory_management_mobile_app/presentation/widgets/add_product
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_filter_chip.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_search_field.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/empty_product_view.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/filter_bottom_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/product_add_button.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
-
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -31,7 +31,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   String? selectedCategory;
 
+  String? selectedFilterStatus;
+  String? selectedFilterCategory;
+
   List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
+  List<String> stockStatusOptions = [
+    "All",
+    "In Stock",
+    "Low Stock",
+    "Out of Stock",
+  ];
 
   void onCategoryChanged(String? value) {
     setState(() {
@@ -40,6 +49,40 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void onCancel() {}
+
+  void onFilterStatusChanged(String? value) {
+    setState(() {
+      selectedFilterStatus = value;
+    });
+  }
+
+  void onFilterCategoryChanged(String? value) {
+    setState(() {
+      selectedFilterCategory = value;
+    });
+  }
+
+  void onApplyFilter() {
+    // TODO: Implement filter logic
+    Navigator.pop(context);
+  }
+
+  void showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => FilterBottomSheetBody(
+        selectedStockStatus: selectedFilterStatus,
+        selectedCategory: selectedFilterCategory,
+        stockStatusOptions: stockStatusOptions,
+        categories: categories,
+        onStockStatusChanged: onFilterStatusChanged,
+        onCategoryChanged: onFilterCategoryChanged,
+        onCancel: () => Navigator.pop(context),
+        onApplyFilter: onApplyFilter,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -146,7 +189,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       value: qty,
     );
     // await productStatusRepositoryImpl.addProductStatus(productStatus);
-    
+
     await productStatusProvider.addProductStatus(productStatus);
 
     stockController.clear();
@@ -255,7 +298,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomFilterChip(label: 'Filter', onTap: () {}),
+                    CustomFilterChip(
+                      label: 'Filter',
+                      onTap: () => showFilterBottomSheet(context),
+                    ),
                     Expanded(
                       child: Center(
                         child: productProvider.products.isEmpty
