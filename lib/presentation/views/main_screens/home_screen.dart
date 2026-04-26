@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
+import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/low_stock_card.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/recent_activity.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/summary_card.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/stock_card.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -81,6 +86,110 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 60),
+              // Low Stock Items title
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Low Stock Items",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Consumer<ProductProvider>(
+                builder: (context, productProvider, child) {
+                  final lowStock = productProvider.lowStockProducts;
+
+                  if (productProvider.isLoading && lowStock.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (lowStock.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 24,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Color(0xFFFFF1DD),
+                            child: Icon(
+                              Icons.warning_amber_rounded,
+                              size: 18,
+                              color: Color(0xFFFFA000),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "No low stock items",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0F1B4C),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final maxHeight =
+                      (MediaQuery.sizeOf(context).height * 0.36).clamp(220, 360);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: maxHeight.toDouble()),
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: lowStock.length,
+                        primary: false,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final product = lowStock[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: LowStockCard(
+                              title: product.name,
+                              subtitle: product.category,
+                              quantity: product.quatity,
+                              minStock: product.minStock,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+
               // Recent Activity title
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -99,7 +208,37 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
               // Activity card
-              RecentActivity(),
+              Consumer<ProductStatusProvider>(
+                builder: (context, productStatusProvider, child) {
+                  final statuses = productStatusProvider.productStatuses;
+                  if (statuses.isEmpty) {
+                    return const RecentActivity();
+                  }
+
+                  final latestTen = statuses.length > 5
+                      ? statuses.sublist(0, 5)
+                      : statuses;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        for (final status in latestTen)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: StockCard(
+                              title: status.productName,
+                              subtitle: status.status ? "Stock Out" : "Stock In",
+                              dateTime: status.timestamp.toString(),
+                              quantity: status.value,
+                              status: status.status,
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
             ],
           ),

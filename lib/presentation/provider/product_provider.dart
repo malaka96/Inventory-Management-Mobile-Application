@@ -8,10 +8,20 @@ class ProductProvider extends ChangeNotifier {
   ProductProvider(this.productRepository);
 
   final List<Product> _products = [];
+  final List<Product> _lowStockProducts = [];
   bool _isLoading = false;
 
   List<Product> get products => List.unmodifiable(_products);
+  List<Product> get lowStockProducts => List.unmodifiable(_lowStockProducts);
   bool get isLoading => _isLoading;
+
+  bool _isLowStock(Product product) => product.quatity <= product.minStock;
+
+  void _rebuildLowStockProducts() {
+    _lowStockProducts
+      ..clear()
+      ..addAll(_products.where(_isLowStock));
+  }
 
   Future<void> loadProducts() async {
     _isLoading = true;
@@ -22,6 +32,7 @@ class ProductProvider extends ChangeNotifier {
       _products
         ..clear()
         ..addAll(fetchedProducts);
+      _rebuildLowStockProducts();
     } catch (e) {
       // Handle error, e.g., log or show a message
     } finally {
@@ -34,6 +45,7 @@ class ProductProvider extends ChangeNotifier {
     try {
       await productRepository.addProduct(product);
       _products.add(product);
+      _rebuildLowStockProducts();
       notifyListeners();
     } catch (e) {
       // Handle error
@@ -47,6 +59,7 @@ class ProductProvider extends ChangeNotifier {
       final index = _products.indexWhere((p) => p.id == product.id);
       if (index != -1) {
         _products[index] = product;
+        _rebuildLowStockProducts();
         notifyListeners();
       }
     } catch (e) {
@@ -58,6 +71,7 @@ class ProductProvider extends ChangeNotifier {
     try {
       await productRepository.deleteProduct(productId);
       _products.removeWhere((p) => p.id == productId);
+      _lowStockProducts.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
       print("Error deleting product: $e");
@@ -70,6 +84,7 @@ class ProductProvider extends ChangeNotifier {
         await productRepository.deleteProduct(product.id);
       }
       _products.clear();
+      _lowStockProducts.clear();
       notifyListeners();
     } catch (e) {
       print("Error clearing all products: $e");
