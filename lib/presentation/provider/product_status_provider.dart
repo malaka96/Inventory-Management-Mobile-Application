@@ -9,10 +9,12 @@ class ProductStatusProvider extends ChangeNotifier {
 
   final List<ProductStatus> _productStatuses = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   List<ProductStatus> get productStatuses =>
       List.unmodifiable(_productStatuses);
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   Future<void> loadProductStatuses() async {
     _isLoading = true;
@@ -25,9 +27,9 @@ class ProductStatusProvider extends ChangeNotifier {
       _productStatuses
         ..clear()
         ..addAll(fetchedStatuses);
+      _errorMessage = null;
     } catch (e) {
-      // Handle error, e.g., log or show a message
-      print("Error loading product statuses: $e");
+      _errorMessage = "Error loading product statuses: $e";
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -38,10 +40,11 @@ class ProductStatusProvider extends ChangeNotifier {
     try {
       await productStatusRepository.addProductStatus(productStatus);
       _productStatuses.insert(0, productStatus);
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      // Handle error
-      print("Error adding product status: $e");
+      _errorMessage = "Error adding product status: $e";
+      notifyListeners();
     }
   }
 
@@ -53,10 +56,12 @@ class ProductStatusProvider extends ChangeNotifier {
       );
       if (index != -1) {
         _productStatuses[index] = productStatus;
+        _errorMessage = null;
         notifyListeners();
       }
     } catch (e) {
-      print("Error updating product status: $e");
+      _errorMessage = "Error updating product status: $e";
+      notifyListeners();
     }
   }
 
@@ -64,9 +69,11 @@ class ProductStatusProvider extends ChangeNotifier {
     try {
       await productStatusRepository.deleteProductStatus(key);
       _productStatuses.removeAt(key);
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error deleting product status: $e");
+      _errorMessage = "Error deleting product status: $e";
+      notifyListeners();
     }
   }
 
@@ -74,9 +81,11 @@ class ProductStatusProvider extends ChangeNotifier {
     try {
       await productStatusRepository.clearAllProductStatus();
       _productStatuses.clear();
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error clearing product statuses: $e");
+      _errorMessage = "Error clearing product statuses: $e";
+      notifyListeners();
     }
   }
 
@@ -93,9 +102,11 @@ class ProductStatusProvider extends ChangeNotifier {
       _productStatuses
         ..clear()
         ..addAll(productStatuses);
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error replacing product statuses: $e");
+      _errorMessage = "Error replacing product statuses: $e";
+      notifyListeners();
       rethrow;
     }
   }

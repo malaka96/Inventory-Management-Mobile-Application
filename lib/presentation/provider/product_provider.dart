@@ -10,10 +10,12 @@ class ProductProvider extends ChangeNotifier {
   final List<Product> _products = [];
   final List<Product> _lowStockProducts = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   List<Product> get products => List.unmodifiable(_products);
   List<Product> get lowStockProducts => List.unmodifiable(_lowStockProducts);
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   int get outOfStockCount => _products.where((p) => p.quatity <= 0).length;
 
@@ -48,10 +50,11 @@ class ProductProvider extends ChangeNotifier {
       await productRepository.addProduct(product);
       _products.add(product);
       _rebuildLowStockProducts();
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      // Handle error
-      print("Error adding product: $e");
+      _errorMessage = "Error adding product: $e";
+      notifyListeners();
     }
   }
 
@@ -62,10 +65,12 @@ class ProductProvider extends ChangeNotifier {
       if (index != -1) {
         _products[index] = product;
         _rebuildLowStockProducts();
+        _errorMessage = null;
         notifyListeners();
       }
     } catch (e) {
-      print("Error updating product: $e");
+      _errorMessage = "Error updating product: $e";
+      notifyListeners();
     }
   }
 
@@ -74,9 +79,11 @@ class ProductProvider extends ChangeNotifier {
       await productRepository.deleteProduct(productId);
       _products.removeWhere((p) => p.id == productId);
       _lowStockProducts.removeWhere((p) => p.id == productId);
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error deleting product: $e");
+      _errorMessage = "Error deleting product: $e";
+      notifyListeners();
     }
   }
 
@@ -85,9 +92,11 @@ class ProductProvider extends ChangeNotifier {
       await productRepository.clearAllProducts();
       _products.clear();
       _lowStockProducts.clear();
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error clearing all products: $e");
+      _errorMessage = "Error clearing all products: $e";
+      notifyListeners();
     }
   }
 
@@ -101,9 +110,11 @@ class ProductProvider extends ChangeNotifier {
         ..clear()
         ..addAll(products);
       _rebuildLowStockProducts();
+      _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print("Error replacing products: $e");
+      _errorMessage = "Error replacing products: $e";
+      notifyListeners();
       rethrow;
     }
   }
