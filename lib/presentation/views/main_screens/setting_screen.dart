@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_management_mobile_app/core/services/export/export_file_saver.dart';
+import 'package:inventory_management_mobile_app/core/services/export/inventory_export_service.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/app_info_card.dart';
@@ -55,7 +57,7 @@ class SettingScreen extends StatelessWidget {
                       buttonColor: const Color(0xFF5E7BF9),
                       buttonTextColor: Colors.white,
                       borderColor: const Color(0xFFE5E7EB),
-                      onButtonPressed: () {},
+                      onButtonPressed: () => _exportAllData(context),
                     ),
 
                     const SizedBox(height: 14),
@@ -199,6 +201,91 @@ class SettingScreen extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _exportAllData(BuildContext context) async {
+    final saver = createExportFileSaver();
+    final exportService = InventoryExportService();
+
+    final now = DateTime.now();
+    final suggestedName = 'inventory_backup_${_fileSafeTimestamp(now)}.json';
+
+    final products = context.read<ProductProvider>().products;
+    final statuses = context.read<ProductStatusProvider>().productStatuses;
+    final json = exportService.buildExportJson(
+      products: products,
+      productStatuses: statuses,
+      exportedAt: now,
+    );
+
+    _showBlockingLoader(context, message: 'Exporting...');
+    try {
+      // Mobile-friendly path: SAF-backed save flow (Android/iOS).
+      try {
+        await saver.saveStringWithPicker(
+          suggestedFileName: suggestedName,
+          contents: json,
+        );
+      } on UnsupportedError {
+        String? path;
+        try {
+          path = await saver.pickSavePath(suggestedFileName: suggestedName);
+        } catch (e) {
+          throw Exception('Could not open file picker: $e');
+        }
+        if (path == null) {
+          if (context.mounted) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+          return;
+        }
+        await saver.writeString(path: path, contents: json);
+      }
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Backup exported successfully'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Export failed'),
+            backgroundColor: Color(0xFFFF4D4F),
+          ),
+        );
+      }
+    }
+  }
+
+  static String _fileSafeTimestamp(DateTime dt) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${dt.year}${two(dt.month)}${two(dt.day)}_${two(dt.hour)}${two(dt.minute)}${two(dt.second)}';
+  }
+
+  void _showBlockingLoader(BuildContext context, {required String message}) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
     );
   }
 
