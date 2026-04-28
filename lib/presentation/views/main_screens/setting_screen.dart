@@ -8,6 +8,8 @@ import 'package:inventory_management_mobile_app/core/services/export/inventory_e
 import 'package:inventory_management_mobile_app/core/services/import/inventory_import_service.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/how_to_use_bottom_sheet_body.dart';
+import 'package:inventory_management_mobile_app/presentation/widgets/contact_support_bottom_sheet_body.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/app_info_card.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_action_button.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_setting_tile.dart';
@@ -141,7 +143,7 @@ class SettingScreen extends StatelessWidget {
                     CustomSettingsTile(
                       title: 'How to Use',
                       leadingIcon: Icons.info_outline,
-                      onTap: () {},
+                      onTap: () => _showHowToUseBottomSheet(context),
                     ),
 
                     const SizedBox(height: 12),
@@ -149,7 +151,7 @@ class SettingScreen extends StatelessWidget {
                     CustomSettingsTile(
                       title: 'Contact Support',
                       leadingIcon: Icons.info_outline,
-                      onTap: () {},
+                      onTap: () => _showContactSupportBottomSheet(context),
                     ),
 
                     const SizedBox(height: 24),
@@ -267,6 +269,36 @@ class SettingScreen extends StatelessWidget {
         );
       }
     }
+  }
+
+  void _showHowToUseBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.92,
+        child: HowToUseBottomSheetBody(
+          onClose: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  void _showContactSupportBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.72,
+        child: ContactSupportBottomSheetBody(
+          supportEmail: 'madhubhashana655@gmail.com',
+          linkedInUrl: 'https://www.linkedin.com/in/malaka-madhubhashana/',
+          onClose: () => Navigator.pop(context),
+        ),
+      ),
+    );
   }
 
   Future<void> _importAllData(BuildContext context) async {
