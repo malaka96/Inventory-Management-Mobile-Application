@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:inventory_management_mobile_app/core/services/export/export_file_saver.dart';
 import 'package:inventory_management_mobile_app/core/services/export/inventory_export_service.dart';
+import 'package:inventory_management_mobile_app/core/services/import/inventory_import_service.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/provider/product_status_provider.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/app_info_card.dart';
@@ -72,7 +77,7 @@ class SettingScreen extends StatelessWidget {
                       buttonColor: const Color(0xFFF1F5F9),
                       buttonTextColor: const Color(0xFF0F172A),
                       borderColor: const Color(0xFFE5E7EB),
-                      onButtonPressed: () {},
+                      onButtonPressed: () => _importAllData(context),
                     ),
 
                     const SizedBox(height: 24),
@@ -262,6 +267,111 @@ class SettingScreen extends StatelessWidget {
         );
       }
     }
+  }
+
+  Future<void> _importAllData(BuildContext context) async {
+    final confirmed = await _confirmOverwriteImport(context);
+    if (confirmed != true) return;
+
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.pickFiles(
+        dialogTitle: 'Select backup file',
+        type: FileType.custom,
+        allowedExtensions: const ['json', 'txt'],
+        withData: true,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open file picker: $e')),
+        );
+      }
+      return;
+    }
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    final bytes = file.bytes;
+    final path = file.path;
+
+    String contents;
+    try {
+      if (bytes != null) {
+        contents = utf8.decode(bytes);
+      } else if (path != null) {
+        contents = await _readFileAsString(path);
+      } else {
+        throw Exception('Could not read selected file');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not read backup file: $e')),
+        );
+      }
+      return;
+    }
+
+    final importService = InventoryImportService();
+
+    _showBlockingLoader(context, message: 'Importing...');
+    try {
+      final data = importService.parseExportedJson(contents);
+      await context.read<ProductProvider>().replaceAllProducts(data.products);
+      await context
+          .read<ProductStatusProvider>()
+          .replaceAllProductStatuses(data.productStatuses);
+
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Backup imported successfully'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Import failed: $e'),
+            backgroundColor: const Color(0xFFFF4D4F),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<bool?> _confirmOverwriteImport(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Import Backup?'),
+        content: const Text(
+          'This will override your existing products and transaction history. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String> _readFileAsString(String path) async {
+    // Avoid adding new dependencies; rely on dart:io via conditional saver file already used elsewhere.
+    // This method will only be used on platforms where file paths are readable.
+    return await File(path).readAsString();
   }
 
   static String _fileSafeTimestamp(DateTime dt) {

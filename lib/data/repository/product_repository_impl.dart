@@ -29,4 +29,9 @@ class ProductRepositoryImpl implements ProductRepository {
     return localDataSource.delete(id);
   }
 
+  @override
+  Future<void> clearAllProducts() async {
+    return localDataSource.clearAll();
+  }
+
 }

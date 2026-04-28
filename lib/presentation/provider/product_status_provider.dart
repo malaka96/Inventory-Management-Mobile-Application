@@ -79,4 +79,24 @@ class ProductStatusProvider extends ChangeNotifier {
       print("Error clearing product statuses: $e");
     }
   }
+
+  Future<void> replaceAllProductStatuses(
+    List<ProductStatus> productStatuses,
+  ) async {
+    try {
+      await productStatusRepository.clearAllProductStatus();
+      for (final status in productStatuses) {
+        await productStatusRepository.addProductStatus(status);
+      }
+      // Keep latest-first ordering for UI.
+      productStatuses.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      _productStatuses
+        ..clear()
+        ..addAll(productStatuses);
+      notifyListeners();
+    } catch (e) {
+      print("Error replacing product statuses: $e");
+      rethrow;
+    }
+  }
 }

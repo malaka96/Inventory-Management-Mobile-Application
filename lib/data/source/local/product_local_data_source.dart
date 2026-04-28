@@ -24,4 +24,8 @@ class ProductLocalDataSource {
   Future<void> delete(int id) async {
     await _productBox.delete(id);
   }
+
+  Future<void> clearAll() async {
+    await _productBox.clear();
+  }
 }

@@ -5,4 +5,5 @@ abstract class ProductRepository {
   Future<void> addProduct(Product product);
   Future<void> updateProduct(Product product);
   Future<void> deleteProduct(int id);
+  Future<void> clearAllProducts();
 }
