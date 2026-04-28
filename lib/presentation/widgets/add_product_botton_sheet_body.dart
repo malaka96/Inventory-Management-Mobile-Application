@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_dropdown_field.dart';
 import 'package:inventory_management_mobile_app/presentation/widgets/custom_text_field.dart';
 
-class AddProductBottomSheetBody extends StatelessWidget {
+class AddProductBottomSheetBody extends StatefulWidget {
   final TextEditingController productNameController;
   final TextEditingController initialQuantityController;
   final TextEditingController minimumStockController;
@@ -14,9 +14,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
   final VoidCallback onAddProduct;
   final VoidCallback? onClose;
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  AddProductBottomSheetBody({
+  const AddProductBottomSheetBody({
     super.key,
     required this.productNameController,
     required this.initialQuantityController,
@@ -28,6 +26,14 @@ class AddProductBottomSheetBody extends StatelessWidget {
     required this.onAddProduct,
     this.onClose,
   });
+
+  @override
+  State<AddProductBottomSheetBody> createState() =>
+      _AddProductBottomSheetBodyState();
+}
+
+class _AddProductBottomSheetBodyState extends State<AddProductBottomSheetBody> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? _validateProductName(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -93,7 +99,10 @@ class AddProductBottomSheetBody extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: onClose ?? () => Navigator.pop(context),
+                      onTap: widget.onClose ?? () {
+                        FocusScope.of(context).unfocus();
+                        Navigator.pop(context);
+                      },
                       borderRadius: BorderRadius.circular(20),
                       child: const Padding(
                         padding: EdgeInsets.all(6),
@@ -113,7 +122,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 _FieldLabel(label: 'Product Name'),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  controller: productNameController,
+                  controller: widget.productNameController,
                   hintText: 'Enter product name',
                   validator: _validateProductName,
                 ),
@@ -123,10 +132,10 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 _FieldLabel(label: 'Category'),
                 const SizedBox(height: 8),
                 CustomDropdownField(
-                  value: selectedCategory,
+                  value: widget.selectedCategory,
                   hintText: 'Select category',
-                  items: categories,
-                  onChanged: onCategoryChanged,
+                  items: widget.categories,
+                  onChanged: widget.onCategoryChanged,
                   validator: _validateCategory,
                 ),
 
@@ -135,7 +144,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 _FieldLabel(label: 'Initial Quantity'),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  controller: initialQuantityController,
+                  controller: widget.initialQuantityController,
                   hintText: '0',
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -147,7 +156,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                 _FieldLabel(label: 'Minimum Stock Level'),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  controller: minimumStockController,
+                  controller: widget.minimumStockController,
                   hintText: '0',
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -160,7 +169,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: onCancel,
+                        onPressed: widget.onCancel,
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                           side: const BorderSide(color: Color(0xFFD1D5DB)),
@@ -183,7 +192,7 @@ class AddProductBottomSheetBody extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            onAddProduct();
+                            widget.onAddProduct();
                           }
                         },
                         style: ElevatedButton.styleFrom(

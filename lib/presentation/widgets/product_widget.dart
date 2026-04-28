@@ -72,11 +72,14 @@ class _ProductWidgetState extends State<ProductWidget> {
   }
 
   void showBottomSheet(BuildContext context, bool isStockIn) {
+    FocusScope.of(context).unfocus();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 1,
+        final sheet = FractionallySizedBox(
+          heightFactor: 0.62,
           child: StockBottomSheet(
             isStockIn: isStockIn,
             productName: widget.productName,
@@ -94,49 +97,75 @@ class _ProductWidgetState extends State<ProductWidget> {
             },
           ),
         );
+
+        return AnimatedPadding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          child: sheet,
+        );
       },
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   void showProductUpdateBottomSheet(BuildContext context) {
+    FocusScope.of(context).unfocus();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return UpdateProductBottomSheetBody(
-          productNameController: productNameController,
-          initialQuantityController: initialQuantityController,
-          minimumStockController: minimumStockController,
-          selectedCategory: widget.category,
-          categories: const ["Electronic", "Clothes", "Hardware", "Other"],
-          onCategoryChanged: (newCategory) {
-            setState(() {
-              selectedCategory = newCategory ?? widget.category;
-            });
-          },
-          onDelete: () async {
-            await widget.onDelete(widget.productId);
-            if (context.mounted) {
-              Navigator.pop(context);
-            }
-          },
-          onUpdateProduct: () async {
-            final updatedProduct = Product(
-              id: widget.productId,
-              name: productNameController.text.trim(),
-              quatity: int.parse(initialQuantityController.text.trim()),
-              category: selectedCategory,
-              minStock: int.parse(minimumStockController.text.trim()),
-            );
-            await widget.onUpdate(updatedProduct);
-            if (context.mounted) {
-              Navigator.pop(context);
-            }
-          },
-          onClose: () => Navigator.pop(context),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: FractionallySizedBox(
+            heightFactor: 0.84,
+            child: UpdateProductBottomSheetBody(
+              productNameController: productNameController,
+              initialQuantityController: initialQuantityController,
+              minimumStockController: minimumStockController,
+              selectedCategory: selectedCategory,
+              categories: const ["Electronic", "Clothes", "Hardware", "Other"],
+              onCategoryChanged: (newCategory) {
+                setState(() {
+                  selectedCategory = newCategory ?? widget.category;
+                });
+              },
+              onDelete: () async {
+                await widget.onDelete(widget.productId);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+              onUpdateProduct: () async {
+                final updatedProduct = Product(
+                  id: widget.productId,
+                  name: productNameController.text.trim(),
+                  quatity: int.parse(initialQuantityController.text.trim()),
+                  category: selectedCategory,
+                  minStock: int.parse(minimumStockController.text.trim()),
+                );
+                await widget.onUpdate(updatedProduct);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+              onClose: () {
+                FocusScope.of(context).unfocus();
+                Navigator.pop(context);
+              },
+            ),
+          ),
         );
       },
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   @override

@@ -123,6 +123,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void showHistoryFilterBottomSheet(BuildContext context) {
+    FocusScope.of(context).unfocus();
     final productStatusProvider = context.read<ProductStatusProvider>();
     final dynamicProductOptions = getProductNames(
       productStatusProvider.productStatuses,
@@ -131,6 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => HistoryFilterBottomSheetBody(
         selectedTransactionType: selectedFilterTransactionType,
         selectedProduct: selectedFilterProduct,
@@ -141,10 +143,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
         onTransactionTypeChanged: onFilterTransactionTypeChanged,
         onProductChanged: onFilterProductChanged,
         onDateRangeChanged: onFilterDateRangeChanged,
-        onCancel: () => Navigator.pop(context),
+        onCancel: () {
+          FocusScope.of(context).unfocus();
+          Navigator.pop(context);
+        },
         onApplyFilter: onApplyHistoryFilter,
+        onClose: () {
+          FocusScope.of(context).unfocus();
+          Navigator.pop(context);
+        },
       ),
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   @override

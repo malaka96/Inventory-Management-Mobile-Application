@@ -52,7 +52,10 @@ class FilterBottomSheetBody extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: onClose ?? () => Navigator.pop(context),
+                    onTap: onClose ?? () {
+                      FocusScope.of(context).unfocus();
+                      Navigator.pop(context);
+                    },
                     borderRadius: BorderRadius.circular(20),
                     child: const Padding(
                       padding: EdgeInsets.all(6),

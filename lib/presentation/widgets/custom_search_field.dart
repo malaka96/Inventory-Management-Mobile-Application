@@ -23,6 +23,8 @@ class CustomSearchField extends StatelessWidget {
       onChanged: onChanged,
       onTap: onTap,
       readOnly: readOnly,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.left,
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: const Icon(

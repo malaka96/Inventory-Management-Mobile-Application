@@ -117,9 +117,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void showFilterBottomSheet(BuildContext context) {
+    FocusScope.of(context).unfocus();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => FilterBottomSheetBody(
         selectedStockStatus: selectedFilterStatus,
         selectedCategory: selectedFilterCategory,
@@ -127,10 +129,19 @@ class _ProductsScreenState extends State<ProductsScreen> {
         categories: filterCategories,
         onStockStatusChanged: onFilterStatusChanged,
         onCategoryChanged: onFilterCategoryChanged,
-        onCancel: () => Navigator.pop(context),
+        onCancel: () {
+          FocusScope.of(context).unfocus();
+          Navigator.pop(context);
+        },
         onApplyFilter: onApplyFilter,
+        onClose: () {
+          FocusScope.of(context).unfocus();
+          Navigator.pop(context);
+        },
       ),
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   @override
@@ -283,11 +294,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void showBottomSheet(BuildContext context) {
+    FocusScope.of(context).unfocus();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 1.25,
+        // Keep the sheet widget stable while the keyboard animates by using
+        // `AnimatedPadding` with a `child` that doesn't depend on viewInsets.
+        final sheet = FractionallySizedBox(
+          heightFactor: 0.84,
           child: AddProductBottomSheetBody(
             productNameController: productNameController,
             initialQuantityController: initialQuantityController,
@@ -297,10 +313,25 @@ class _ProductsScreenState extends State<ProductsScreen> {
             onCategoryChanged: onCategoryChanged,
             onCancel: onCancel,
             onAddProduct: onAddProduct,
+            onClose: () {
+              FocusScope.of(context).unfocus();
+              Navigator.pop(context);
+            },
           ),
         );
+
+        return AnimatedPadding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          child: sheet,
+        );
       },
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   @override

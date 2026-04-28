@@ -277,7 +277,7 @@ class SettingScreen extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => FractionallySizedBox(
-        heightFactor: 0.92,
+        heightFactor: 0.84,
         child: HowToUseBottomSheetBody(
           onClose: () => Navigator.pop(context),
         ),
