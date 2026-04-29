@@ -282,7 +282,9 @@ class SettingScreen extends StatelessWidget {
           onClose: () => Navigator.pop(context),
         ),
       ),
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   void _showContactSupportBottomSheet(BuildContext context) {
@@ -298,7 +300,9 @@ class SettingScreen extends StatelessWidget {
           onClose: () => Navigator.pop(context),
         ),
       ),
-    );
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   Future<void> _importAllData(BuildContext context) async {
