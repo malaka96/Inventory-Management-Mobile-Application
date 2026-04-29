@@ -1,4 +1,4 @@
-package com.example.inventory_management_mobile_app
+package com.pangolin96.smart_inventory_manager
 
 import io.flutter.embedding.android.FlutterActivity
 
