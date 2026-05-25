@@ -130,7 +130,22 @@ class _ProductWidgetState extends State<ProductWidget> {
               initialQuantityController: initialQuantityController,
               minimumStockController: minimumStockController,
               selectedCategory: selectedCategory,
-              categories: const ["Electronic", "Clothes", "Hardware", "Other"],
+              categories: const [
+                "Electronic",
+                "Clothes",
+                "Hardware",
+                "Other",
+                "Groceries",
+                "Furniture",
+                "Stationery",
+                "Cosmetics",
+                "Sports",
+                "Toys",
+                "Books",
+                "Automotive",
+                "Medical",
+                "Pet Supplies",
+              ],
               onCategoryChanged: (newCategory) {
                 setState(() {
                   selectedCategory = newCategory ?? widget.category;

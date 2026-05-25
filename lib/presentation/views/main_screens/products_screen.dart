@@ -36,7 +36,22 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String? selectedFilterCategory;
   String _searchQuery = '';
 
-  List<String> categories = ["Electronic", "Clothes", "Hardware", "Other"];
+  List<String> categories = [
+    "Electronic",
+    "Clothes",
+    "Hardware",
+    "Other",
+    "Groceries",
+    "Furniture",
+    "Stationery",
+    "Cosmetics",
+    "Sports",
+    "Toys",
+    "Books",
+    "Automotive",
+    "Medical",
+    "Pet Supplies",
+  ];
   List<String> stockStatusOptions = [
     "All",
     "In Stock",
@@ -49,6 +64,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
     "Clothes",
     "Hardware",
     "Other",
+    "Groceries",
+    "Furniture",
+    "Stationery",
+    "Cosmetics",
+    "Sports",
+    "Toys",
+    "Books",
+    "Automotive",
+    "Medical",
+    "Pet Supplies",
   ];
 
   void onCategoryChanged(String? value) {
